@@ -1,0 +1,1 @@
+$ docker run --name full-stack-ecommerce -e MYSQL_ROOT_PASSWORD=ecommerceapp -d mysql
