@@ -1,1 +1,64 @@
 https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2023-03/R/eclipse-jee-2023-03-R-win32-x86_64.zip&mirror_id=17
+
+Pour activer l'API REST Activiti dans votre application Spring Boot 1.x, vous pouvez utiliser la configuration XML suivante :
+
+    Créez un fichier nommé activiti-custom-context.xml dans votre répertoire de ressources src/main/resources.
+
+    Ajoutez la configuration XML suivante dans le fichier activiti-custom-context.xml :
+
+php
+
+<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+    <property name="databaseSchemaUpdate" value="true" />
+    <property name="dataSource" ref="dataSource" />
+    <property name="transactionManager" ref="transactionManager" />
+    <property name="jobExecutorActivate" value="true" />
+    <property name="deploymentResources" value="classpath*:*.bpmn20.xml" />
+    <property name="mailServerHost" value="localhost" />
+    <property name="mailServerPort" value="5025" />
+    <property name="mailServerUsername" value="admin" />
+    <property name="mailServerPassword" value="admin" />
+    <property name="asyncExecutorEnabled" value="true" />
+    <property name="asyncExecutorActivate" value="true" />
+</bean>
+
+<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+    <property name="processEngineConfiguration" ref="processEngineConfiguration" />
+</bean>
+
+<bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+<bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+<bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+<bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+<bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+<bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
+
+<bean id="processEngineConfigurationConfigurer" class="org.activiti.spring.boot.ProcessEngineConfigurationConfigurer">
+    <property name="configurers">
+        <list>
+            <bean class="org.activiti.spring.boot.RestApiAutoConfiguration" />
+        </list>
+    </property>
+</bean>
+
+Cette configuration XML crée et configure un bean processEngine qui sera utilisé pour interagir avec le moteur Activiti. Elle active également la configuration de l'API REST Activiti en utilisant la classe RestApiAutoConfiguration de Activiti.
+
+    Dans votre fichier application.properties, ajoutez la propriété spring.activiti.check-process-definitions=false pour désactiver la vérification des définitions de processus.
+
+arduino
+
+spring.activiti.check-process-definitions=false
+
+    Dans votre classe de configuration Spring, utilisez l'annotation @ImportResource pour importer le fichier de configuration XML.
+
+less
+
+@SpringBootApplication
+@ImportResource("classpath:activiti-custom-context.xml")
+public class ActivitiApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ActivitiApplication.class, args);
+    }
+}
+
+Après avoir suivi ces étapes, vous devriez être en mesure d'accéder à l'API REST Activiti en utilisant l'URL http://localhost:8080/activiti-rest.
