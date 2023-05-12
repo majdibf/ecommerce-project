@@ -8,38 +8,51 @@ Pour activer l'API REST Activiti dans votre application Spring Boot 1.x, vous po
 
 php
 
-<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
-    <property name="databaseSchemaUpdate" value="true" />
-    <property name="dataSource" ref="dataSource" />
-    <property name="transactionManager" ref="transactionManager" />
-    <property name="jobExecutorActivate" value="true" />
-    <property name="deploymentResources" value="classpath*:*.bpmn20.xml" />
-    <property name="mailServerHost" value="localhost" />
-    <property name="mailServerPort" value="5025" />
-    <property name="mailServerUsername" value="admin" />
-    <property name="mailServerPassword" value="admin" />
-    <property name="asyncExecutorEnabled" value="true" />
-    <property name="asyncExecutorActivate" value="true" />
-</bean>
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
 
-<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
-    <property name="processEngineConfiguration" ref="processEngineConfiguration" />
-</bean>
+    <!-- Configuration du moteur Activiti -->
+    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+        <property name="dataSource" ref="dataSource" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="databaseSchemaUpdate" value="true" />
+        <property name="jobExecutorActivate" value="true" />
+        <property name="deploymentResources" value="classpath*:*.bpmn20.xml" />
+        <property name="mailServerHost" value="localhost" />
+        <property name="mailServerPort" value="5025" />
+        <property name="mailServerUsername" value="admin" />
+        <property name="mailServerPassword" value="admin" />
+        <property name="asyncExecutorEnabled" value="true" />
+        <property name="asyncExecutorActivate" value="true" />
+    </bean>
 
-<bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
-<bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
-<bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
-<bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
-<bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
-<bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
+    <!-- Création du bean processEngine à partir du processEngineConfiguration -->
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration" />
+    </bean>
 
-<bean id="processEngineConfigurationConfigurer" class="org.activiti.spring.boot.ProcessEngineConfigurationConfigurer">
-    <property name="configurers">
-        <list>
-            <bean class="org.activiti.spring.boot.RestApiAutoConfiguration" />
-        </list>
-    </property>
-</bean>
+    <!-- Création de tous les beans de service Activiti -->
+    <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+    <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+    <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+    <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+    <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+    <bean id="identityService" factory-bean="processEngine" factory-method="getIdentityService" />
+
+    <!-- Activation de l'API REST Activiti -->
+    <bean id="processEngineConfigurationConfigurer" class="org.activiti.spring.boot.ProcessEngineConfigurationConfigurer">
+        <property name="configurers">
+            <list>
+                <bean class="org.activiti.spring.boot.RestApiAutoConfiguration" />
+            </list>
+        </property>
+    </bean>
+
+</beans>
 
 Cette configuration XML crée et configure un bean processEngine qui sera utilisé pour interagir avec le moteur Activiti. Elle active également la configuration de l'API REST Activiti en utilisant la classe RestApiAutoConfiguration de Activiti.
 
