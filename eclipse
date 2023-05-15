@@ -75,3 +75,29 @@ public class ActivitiApplication {
 }
 
 Après avoir suivi ces étapes, vous devriez être en mesure d'accéder à l'API REST Activiti en utilisant l'URL http://localhost:8080/activiti-rest.
+
+Je m'excuse pour la confusion précédente. Si vous souhaitez exécuter un fichier WAR en tant qu'exécutable, comme le ferait Spring Boot, vous pouvez utiliser Spring Boot lui-même pour créer un exécutable exécutable JAR. Voici comment vous pouvez le faire :
+
+1. Assurez-vous d'avoir Spring Boot installé sur votre machine. Vous pouvez le télécharger depuis le site officiel de Spring Boot (https://spring.io/projects/spring-boot).
+
+2. Ouvrez un terminal ou une invite de commandes et naviguez jusqu'au répertoire où se trouve votre fichier WAR.
+
+3. Utilisez l'outil Spring Boot `spring-boot-loader` pour créer un exécutable JAR à partir de votre fichier WAR. Vous pouvez le faire en utilisant la commande suivante :
+
+```
+<chemin_vers_spring_boot>/bin/spring-boot-loader repackage --executable <votre_fichier_war>.war
+```
+
+Assurez-vous de remplacer `<chemin_vers_spring_boot>` par le chemin absolu vers le répertoire d'installation de Spring Boot, et `<votre_fichier_war>` par le nom de votre fichier WAR.
+
+4. Après avoir exécuté cette commande, un nouveau fichier JAR exécutable sera généré dans le même répertoire que votre fichier WAR. Ce fichier JAR aura une structure interne similaire à celle d'un fichier JAR Spring Boot standard.
+
+Vous pouvez maintenant exécuter le fichier JAR exécutable à l'aide de la commande `java -jar` :
+
+```
+java -jar <votre_fichier_war>.jar
+```
+
+Assurez-vous de remplacer `<votre_fichier_war>` par le nom de votre fichier JAR exécutable.
+
+En suivant ces étapes, vous devriez pouvoir créer un exécutable JAR à partir de votre fichier WAR à l'aide de Spring Boot.
