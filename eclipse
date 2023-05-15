@@ -142,3 +142,45 @@ L'application sera alors exécutée en tant que serveur autonome intégrant Tomc
 
 Cette approche vous permettra de transformer votre application WAR en une application autonome exécutable, sans modifier le code existant.
 
+Si vous rencontrez l'erreur "Impossible de charger la classe principale JarLauncher" lors de l'exécution de votre fichier JAR autonome généré, cela peut être dû à un problème de configuration ou de dépendance manquante.
+
+Voici quelques étapes à suivre pour résoudre ce problème :
+
+1. Vérifiez la configuration de votre fichier `pom.xml` : Assurez-vous que la dépendance vers Spring Boot est correctement spécifiée dans votre fichier `pom.xml`. Vous devriez avoir une dépendance semblable à ceci :
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter</artifactId>
+    <version>VERSION</version>
+</dependency>
+```
+
+Assurez-vous de remplacer `VERSION` par la version appropriée de Spring Boot que vous utilisez.
+
+2. Vérifiez la structure de votre projet : Assurez-vous que votre projet suit la structure standard d'un projet Spring Boot. Vous devriez avoir une classe principale annotée avec `@SpringBootApplication` dans le package racine de votre projet. Par exemple :
+
+```java
+package com.example.myapp;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}
+```
+
+Assurez-vous que la classe principale est correctement configurée et que le package correspond à celui que vous utilisez.
+
+3. Vérifiez que vous avez bien exécuté la commande `mvn clean package` : Assurez-vous d'exécuter la commande `mvn clean package` pour générer le fichier JAR. Cette commande compile votre projet, génère le fichier JAR et construit les dépendances nécessaires.
+
+4. Vérifiez que votre fichier JAR a été généré avec succès : Après avoir exécuté la commande `mvn clean package`, vérifiez que votre fichier JAR a été généré avec succès. Vous devriez trouver le fichier JAR dans le répertoire `target` de votre projet.
+
+5. Vérifiez la présence de la classe `JarLauncher` dans votre fichier JAR : Ouvrez le fichier JAR avec un utilitaire d'archive (comme 7-Zip ou WinRAR) et assurez-vous que la classe `JarLauncher` fait partie du fichier JAR. Si la classe est manquante, cela peut indiquer un problème lors de la génération du fichier JAR.
+
+En suivant ces étapes, vous devriez être en mesure de résoudre l'erreur "Impossible de charger la classe principale JarLauncher" et d'exécuter votre fichier JAR autonome Spring Boot avec succès. Assurez-vous que toutes les dépendances nécessaires sont correctement configurées et que la structure de votre projet est conforme aux conventions de Spring Boot.
+
