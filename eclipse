@@ -72,3 +72,73 @@ java -jar nom-du-fichier-shaded.jar
 Assurez-vous de remplacer `nom-du-fichier-shaded.jar` par le nom réel du fichier JAR généré.
 
 Veuillez noter que l'utilisation du plugin Maven Shade pour transformer un fichier WAR en un fichier JAR exécutable embarquant Tomcat peut être plus complexe que l'utilisation du plugin Spring Boot Maven. Cependant, cela vous permettra d'obtenir un fichier JAR autonome qui inclut Tomcat et votre application WAR.
+
+
+
+Si vous souhaitez rendre votre application WAR autonome, de manière similaire à un fichier JAR Spring Boot, sans modifier le code existant, vous pouvez utiliser le projet Apache Tomcat Embed. Voici les étapes à suivre :
+
+1. Ajoutez les dépendances nécessaires à votre projet Maven. Assurez-vous d'ajuster les versions selon vos besoins :
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>9.0.56</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-jasper</artifactId>
+        <version>9.0.56</version>
+    </dependency>
+</dependencies>
+```
+
+2. Dans votre projet, créez une classe principale qui servira de point d'entrée pour l'exécution autonome :
+
+```java
+import org.apache.catalina.startup.Tomcat;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Tomcat tomcat = new Tomcat();
+        tomcat.setPort(8080); // Port d'écoute du serveur Tomcat
+        
+        // Spécifiez le répertoire de base pour Tomcat (par exemple, "./target/tomcat")
+        File baseDir = new File("./target/tomcat");
+        tomcat.setBaseDir(baseDir.getAbsolutePath());
+        
+        // Définissez le chemin du contexte de votre application WAR
+        // (par exemple, si votre application WAR est "myapp.war", le contexte sera "/myapp")
+        String contextPath = "/myapp";
+        String warFilePath = "./path/to/your/war/file.war";
+        tomcat.addWebapp(contextPath, warFilePath);
+
+        tomcat.start();
+        tomcat.getServer().await();
+    }
+}
+```
+
+Assurez-vous de remplacer `"./path/to/your/war/file.war"` par le chemin absolu vers votre fichier WAR existant.
+
+3. Compilez et générez le projet Maven.
+
+```bash
+mvn clean package
+```
+
+Cela générera un fichier JAR qui embarque Tomcat et votre application WAR.
+
+4. Exécutez le fichier JAR généré :
+
+```bash
+java -jar nom-du-fichier.jar
+```
+
+Assurez-vous de remplacer `nom-du-fichier.jar` par le nom réel du fichier JAR généré.
+
+L'application sera alors exécutée en tant que serveur autonome intégrant Tomcat. Vous pourrez y accéder en utilisant l'URL `http://localhost:8080/myapp` (remplacez `myapp` par le contexte spécifié dans votre classe `Main`).
+
+Cette approche vous permettra de transformer votre application WAR en une application autonome exécutable, sans modifier le code existant.
+
