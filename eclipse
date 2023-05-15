@@ -101,3 +101,60 @@ java -jar <votre_fichier_war>.jar
 Assurez-vous de remplacer `<votre_fichier_war>` par le nom de votre fichier JAR exécutable.
 
 En suivant ces étapes, vous devriez pouvoir créer un exécutable JAR à partir de votre fichier WAR à l'aide de Spring Boot.
+
+
+Bien sûr ! Voici un exemple de fichier `pom.xml` complet qui utilise le plugin Spring Boot Maven et spécifie où placer le fichier WAR :
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Informations sur le projet -->
+    <groupId>com.example</groupId>
+    <artifactId>mon-projet</artifactId>
+    <version>1.0.0</version>
+    <packaging>war</packaging>
+
+    <properties>
+        <java.version>11</java.version>
+        <spring-boot.version>2.5.0</spring-boot.version>
+    </properties>
+
+    <dependencies>
+        <!-- Ajoutez ici vos dépendances -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Plugin Maven pour Spring Boot -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <finalName>mon-projet</finalName> <!-- Nom du fichier WAR généré -->
+    </build>
+</project>
+```
+
+Dans ce `pom.xml`, assurez-vous de mettre le packaging en `<packaging>war</packaging>` pour indiquer que votre projet est un fichier WAR.
+
+Concernant votre fichier WAR existant, vous devez le placer dans le répertoire `src/main/webapp` de votre projet. Assurez-vous de respecter la structure standard de Maven.
+
+Après avoir configuré votre fichier `pom.xml`, exécutez la commande Maven suivante pour empaqueter votre application :
+
+```bash
+mvn clean package
+```
+
+Cette commande générera le fichier JAR exécutable dans le répertoire `target` de votre projet.
