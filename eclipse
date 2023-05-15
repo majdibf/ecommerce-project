@@ -14,3 +14,61 @@ Option 2: Utiliser une configuration sans web.xml (Servlet 3.0+):
 3. Assurez-vous d'avoir une configuration basée sur les annotations pour vos servlets, filtres et autres composants Web. Utilisez les annotations `@WebServlet`, `@WebFilter`, `@WebListener`, etc., pour définir vos composants.
 
 Après avoir ajouté le fichier `web.xml` ou configuré votre application sans `web.xml`, exécutez à nouveau la commande `mvn clean package` pour empaqueter votre application WAR. L'erreur "web.xml attribute is required" ne devrait plus se produire, et le processus de construction du WAR devrait se terminer avec succès.
+
+
+Je m'excuse pour la confusion précédente. Si vous souhaitez transformer un fichier WAR en un fichier JAR exécutable qui embarque Tomcat, vous pouvez utiliser le plugin Maven Shade. Voici les étapes pour le faire :
+
+1. Assurez-vous d'avoir Maven installé sur votre machine.
+
+2. Dans votre projet Maven, ajoutez le plugin Maven Shade dans la section `<plugins>` de votre fichier `pom.xml`. Voici un exemple de configuration :
+
+```xml
+<build>
+    <plugins>
+        <!-- Plugin Maven Shade -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.2.4</version> <!-- Remplacez par la version souhaitée -->
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <createDependencyReducedPom>false</createDependencyReducedPom>
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
+                            </transformer>
+                        </transformers>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+3. Enregistrez votre fichier `pom.xml`.
+
+4. Ouvrez un terminal ou une invite de commandes et naviguez jusqu'au répertoire de votre projet Maven.
+
+5. Exécutez la commande Maven pour créer le fichier JAR exécutable :
+
+```bash
+mvn clean package
+```
+
+Cette commande générera un fichier JAR exécutable dans le répertoire `target` de votre projet, avec un suffixe `-shaded` ajouté au nom du fichier.
+
+Le fichier JAR généré embarquera Tomcat et votre application WAR à l'intérieur. Vous pourrez exécuter le fichier JAR en utilisant la commande `java -jar` comme suit :
+
+```bash
+java -jar nom-du-fichier-shaded.jar
+```
+
+Assurez-vous de remplacer `nom-du-fichier-shaded.jar` par le nom réel du fichier JAR généré.
+
+Veuillez noter que l'utilisation du plugin Maven Shade pour transformer un fichier WAR en un fichier JAR exécutable embarquant Tomcat peut être plus complexe que l'utilisation du plugin Spring Boot Maven. Cependant, cela vous permettra d'obtenir un fichier JAR autonome qui inclut Tomcat et votre application WAR.
