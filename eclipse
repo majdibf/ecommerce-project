@@ -1,186 +1,44 @@
-Si vous rencontrez une erreur "Error assembling WAR: web.xml attribute is required" lors de l'exécution de la commande `mvn clean package`, cela signifie que le fichier `web.xml` est manquant dans votre projet WAR.
+Je m'excuse pour la confusion précédente. Si vous utilisez Spring Boot 1.5.2.release et souhaitez ajouter l'API REST d'Activiti à votre projet tout en conservant la dépendance `activiti-spring-boot-starter-basic`, voici la procédure à suivre :
 
-Le fichier `web.xml` est une configuration XML obligatoire pour les applications Java EE. Il spécifie la configuration de l'application Web, telle que les servlets, les filtres, les paramètres d'initialisation, etc.
-
-Pour résoudre cette erreur, vous pouvez suivre l'une des deux options :
-
-Option 1: Ajouter un fichier web.xml :
-1. Créez un fichier `web.xml` dans le répertoire `src/main/webapp/WEB-INF` de votre projet.
-2. Remplissez le fichier `web.xml` avec la configuration appropriée pour votre application. Vous pouvez utiliser un modèle de `web.xml` standard ou le personnaliser en fonction de vos besoins.
-
-Option 2: Utiliser une configuration sans web.xml (Servlet 3.0+):
-1. Si vous utilisez une version de Servlet 3.0 ou supérieure, vous pouvez configurer votre application sans utiliser de fichier `web.xml`.
-2. Supprimez le répertoire `src/main/webapp/WEB-INF` de votre projet (et tout son contenu).
-3. Assurez-vous d'avoir une configuration basée sur les annotations pour vos servlets, filtres et autres composants Web. Utilisez les annotations `@WebServlet`, `@WebFilter`, `@WebListener`, etc., pour définir vos composants.
-
-Après avoir ajouté le fichier `web.xml` ou configuré votre application sans `web.xml`, exécutez à nouveau la commande `mvn clean package` pour empaqueter votre application WAR. L'erreur "web.xml attribute is required" ne devrait plus se produire, et le processus de construction du WAR devrait se terminer avec succès.
-
-
-Je m'excuse pour la confusion précédente. Si vous souhaitez transformer un fichier WAR en un fichier JAR exécutable qui embarque Tomcat, vous pouvez utiliser le plugin Maven Shade. Voici les étapes pour le faire :
-
-1. Assurez-vous d'avoir Maven installé sur votre machine.
-
-2. Dans votre projet Maven, ajoutez le plugin Maven Shade dans la section `<plugins>` de votre fichier `pom.xml`. Voici un exemple de configuration :
-
-```xml
-<build>
-    <plugins>
-        <!-- Plugin Maven Shade -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.2.4</version> <!-- Remplacez par la version souhaitée -->
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>shade</goal>
-                    </goals>
-                    <configuration>
-                        <createDependencyReducedPom>false</createDependencyReducedPom>
-                        <transformers>
-                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
-                            </transformer>
-                        </transformers>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
-```
-
-3. Enregistrez votre fichier `pom.xml`.
-
-4. Ouvrez un terminal ou une invite de commandes et naviguez jusqu'au répertoire de votre projet Maven.
-
-5. Exécutez la commande Maven pour créer le fichier JAR exécutable :
-
-```bash
-mvn clean package
-```
-
-Cette commande générera un fichier JAR exécutable dans le répertoire `target` de votre projet, avec un suffixe `-shaded` ajouté au nom du fichier.
-
-Le fichier JAR généré embarquera Tomcat et votre application WAR à l'intérieur. Vous pourrez exécuter le fichier JAR en utilisant la commande `java -jar` comme suit :
-
-```bash
-java -jar nom-du-fichier-shaded.jar
-```
-
-Assurez-vous de remplacer `nom-du-fichier-shaded.jar` par le nom réel du fichier JAR généré.
-
-Veuillez noter que l'utilisation du plugin Maven Shade pour transformer un fichier WAR en un fichier JAR exécutable embarquant Tomcat peut être plus complexe que l'utilisation du plugin Spring Boot Maven. Cependant, cela vous permettra d'obtenir un fichier JAR autonome qui inclut Tomcat et votre application WAR.
-
-
-
-Si vous souhaitez rendre votre application WAR autonome, de manière similaire à un fichier JAR Spring Boot, sans modifier le code existant, vous pouvez utiliser le projet Apache Tomcat Embed. Voici les étapes à suivre :
-
-1. Ajoutez les dépendances nécessaires à votre projet Maven. Assurez-vous d'ajuster les versions selon vos besoins :
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>org.apache.tomcat.embed</groupId>
-        <artifactId>tomcat-embed-core</artifactId>
-        <version>9.0.56</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.tomcat.embed</groupId>
-        <artifactId>tomcat-embed-jasper</artifactId>
-        <version>9.0.56</version>
-    </dependency>
-</dependencies>
-```
-
-2. Dans votre projet, créez une classe principale qui servira de point d'entrée pour l'exécution autonome :
-
-```java
-import org.apache.catalina.startup.Tomcat;
-
-public class Main {
-    public static void main(String[] args) throws Exception {
-        Tomcat tomcat = new Tomcat();
-        tomcat.setPort(8080); // Port d'écoute du serveur Tomcat
-        
-        // Spécifiez le répertoire de base pour Tomcat (par exemple, "./target/tomcat")
-        File baseDir = new File("./target/tomcat");
-        tomcat.setBaseDir(baseDir.getAbsolutePath());
-        
-        // Définissez le chemin du contexte de votre application WAR
-        // (par exemple, si votre application WAR est "myapp.war", le contexte sera "/myapp")
-        String contextPath = "/myapp";
-        String warFilePath = "./path/to/your/war/file.war";
-        tomcat.addWebapp(contextPath, warFilePath);
-
-        tomcat.start();
-        tomcat.getServer().await();
-    }
-}
-```
-
-Assurez-vous de remplacer `"./path/to/your/war/file.war"` par le chemin absolu vers votre fichier WAR existant.
-
-3. Compilez et générez le projet Maven.
-
-```bash
-mvn clean package
-```
-
-Cela générera un fichier JAR qui embarque Tomcat et votre application WAR.
-
-4. Exécutez le fichier JAR généré :
-
-```bash
-java -jar nom-du-fichier.jar
-```
-
-Assurez-vous de remplacer `nom-du-fichier.jar` par le nom réel du fichier JAR généré.
-
-L'application sera alors exécutée en tant que serveur autonome intégrant Tomcat. Vous pourrez y accéder en utilisant l'URL `http://localhost:8080/myapp` (remplacez `myapp` par le contexte spécifié dans votre classe `Main`).
-
-Cette approche vous permettra de transformer votre application WAR en une application autonome exécutable, sans modifier le code existant.
-
-Si vous rencontrez l'erreur "Impossible de charger la classe principale JarLauncher" lors de l'exécution de votre fichier JAR autonome généré, cela peut être dû à un problème de configuration ou de dépendance manquante.
-
-Voici quelques étapes à suivre pour résoudre ce problème :
-
-1. Vérifiez la configuration de votre fichier `pom.xml` : Assurez-vous que la dépendance vers Spring Boot est correctement spécifiée dans votre fichier `pom.xml`. Vous devriez avoir une dépendance semblable à ceci :
+1. Ajoutez les dépendances nécessaires à votre fichier `pom.xml` :
 
 ```xml
 <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter</artifactId>
-    <version>VERSION</version>
+    <groupId>org.activiti</groupId>
+    <artifactId>activiti-spring-boot-starter-rest</artifactId>
+    <version>5.22.0</version>
+</dependency>
+<dependency>
+    <groupId>org.activiti</groupId>
+    <artifactId>activiti-spring-boot-starter-basic</artifactId>
+    <version>5.22.0</version>
 </dependency>
 ```
 
-Assurez-vous de remplacer `VERSION` par la version appropriée de Spring Boot que vous utilisez.
+Assurez-vous d'utiliser la version `5.22.0` pour ces dépendances, car elle est compatible avec votre version d'Activiti (5.22.0).
 
-2. Vérifiez la structure de votre projet : Assurez-vous que votre projet suit la structure standard d'un projet Spring Boot. Vous devriez avoir une classe principale annotée avec `@SpringBootApplication` dans le package racine de votre projet. Par exemple :
+2. Dans votre classe principale de démarrage de l'application (généralement annotée avec `@SpringBootApplication`), assurez-vous que la classe est également annotée avec `@EnableActivitiRestApi` pour activer l'API REST d'Activiti. Votre classe principale ressemblera à quelque chose comme ceci :
 
 ```java
-package com.example.myapp;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 @SpringBootApplication
-public class MyApplication {
+@EnableActivitiRestApi
+public class VotreApplication {
     public static void main(String[] args) {
-        SpringApplication.run(MyApplication.class, args);
+        SpringApplication.run(VotreApplication.class, args);
     }
 }
 ```
 
-Assurez-vous que la classe principale est correctement configurée et que le package correspond à celui que vous utilisez.
+3. Configurez les propriétés nécessaires pour l'API REST d'Activiti dans votre fichier `application.properties` ou `application.yml` :
 
-3. Vérifiez que vous avez bien exécuté la commande `mvn clean package` : Assurez-vous d'exécuter la commande `mvn clean package` pour générer le fichier JAR. Cette commande compile votre projet, génère le fichier JAR et construit les dépendances nécessaires.
+```properties
+# Configuration de l'API REST d'Activiti
+activiti.rest.enable=true
+activiti.rest.app-context-path=/activiti
+```
 
-4. Vérifiez que votre fichier JAR a été généré avec succès : Après avoir exécuté la commande `mvn clean package`, vérifiez que votre fichier JAR a été généré avec succès. Vous devriez trouver le fichier JAR dans le répertoire `target` de votre projet.
+Assurez-vous que la propriété `activiti.rest.enable` est définie sur `true` pour activer l'API REST d'Activiti et que `activiti.rest.app-context-path` spécifie le chemin de contexte de l'API (dans cet exemple, `/activiti`).
 
-5. Vérifiez la présence de la classe `JarLauncher` dans votre fichier JAR : Ouvrez le fichier JAR avec un utilitaire d'archive (comme 7-Zip ou WinRAR) et assurez-vous que la classe `JarLauncher` fait partie du fichier JAR. Si la classe est manquante, cela peut indiquer un problème lors de la génération du fichier JAR.
+4. Démarrez votre application Spring Boot et vous devriez pouvoir accéder à l'API REST d'Activiti via l'URL configurée, par exemple `http://localhost:8080/activiti/...`.
 
-En suivant ces étapes, vous devriez être en mesure de résoudre l'erreur "Impossible de charger la classe principale JarLauncher" et d'exécuter votre fichier JAR autonome Spring Boot avec succès. Assurez-vous que toutes les dépendances nécessaires sont correctement configurées et que la structure de votre projet est conforme aux conventions de Spring Boot.
-
+Veuillez noter que cette configuration est basée sur les informations disponibles jusqu'à ma date de coupure de connaissances en septembre 2021. Si Activiti a publié des versions plus récentes depuis lors, assurez-vous de consulter la documentation officielle pour obtenir des informations à jour sur la configuration de l'API REST.
