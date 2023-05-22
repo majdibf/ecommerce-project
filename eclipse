@@ -85,3 +85,84 @@ spring.activiti.rest.app.security.enabled=false
 Cette propriété désactivera la configuration de sécurité fournie par Activiti REST pour l'API.
 
 Assurez-vous de comprendre les implications de désactiver complètement l'authentification dans votre application. Cela peut poser des problèmes de sécurité dans un environnement de production. Il est recommandé d'évaluer attentivement les besoins de sécurité de votre application et de prendre les mesures appropriées pour protéger vos ressources si nécessaire.
+
+
+Je m'excuse si les options précédentes n'ont pas fonctionné pour désactiver l'authentification de l'API REST d'Activiti dans votre application Spring Boot.
+
+Dans ce cas, vous pouvez essayer une autre approche en personnalisant la configuration de sécurité de l'API REST d'Activiti spécifiquement. Voici comment vous pouvez le faire :
+
+1. Créez une classe de configuration supplémentaire pour l'API REST d'Activiti :
+
+```java
+import org.activiti.spring.boot.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
+@Configuration
+@AutoConfigureAfter(SecurityAutoConfiguration.class)
+@Import(ActivitiRestSecurityConfiguration.class)
+public class ActivitiRestApiSecurityConfig {
+}
+```
+
+2. Créez une classe de configuration `ActivitiRestSecurityConfiguration` :
+
+```java
+import org.activiti.rest.security.BasicAuthenticationProvider;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+@Configuration
+@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+public class ActivitiRestSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // Définissez ici vos configurations d'authentification personnalisées si nécessaire
+        // Par exemple, vous pouvez définir un authentificateur personnalisé ou utiliser un fournisseur d'authentification différent
+        auth.authenticationProvider(new BasicAuthenticationProvider());
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+                .antMatchers("/activiti-rest/**").permitAll() // Autoriser l'accès à l'API REST d'Activiti sans authentification
+                .anyRequest().authenticated()
+                .and()
+            .httpBasic()
+                .and()
+            .csrf().disable();
+    }
+}
+```
+
+Dans cette configuration, nous autorisons l'accès à l'API REST d'Activiti sans authentification en utilisant la configuration `antMatchers("/activiti-rest/**").permitAll()`. Les autres requêtes nécessiteront toujours une authentification.
+
+3. Assurez-vous que votre classe principale de démarrage de l'application importe la classe de configuration `ActivitiRestApiSecurityConfig` :
+
+```java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
+
+@SpringBootApplication
+@Import(ActivitiRestApiSecurityConfig.class)
+public class YourApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(YourApplication.class, args);
+    }
+}
+```
+
+Cela permettra à votre application de prendre en compte la configuration de sécurité personnalisée pour l'API REST d'Activiti.
+
+N'oubliez pas de personnaliser les configurations d'authentification selon vos besoins. Par exemple, vous pouvez définir un authentificateur personnalisé ou utiliser un fournisseur d'authentification différent dans `ActivitiRestSecurityConfiguration` pour une authentification personnalisée.
+
+Notez que cette approche est spécifique à l'API REST d'Activiti et ne modifie pas la configuration de sécurité pour le reste de votre application Spring Boot.
