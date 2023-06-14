@@ -1,32 +1,7 @@
+jbossHome="/D/adeo466/Outils/Atelier43/jboss-4.2.3.GA"
+ear="/D/workdir/workspaces/back/odeihm/FAE_JUNIT/FAE_JUNIT-ear/target/FAE_JUNIT-ear-0.0.2-SNAPSHOT.ear"
+serverDir=$jbossHome/server/ode-ihm
 
-    
-    
-run.bat -c chemin/vers/votre/instance -DmonParametre=maValeur -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
-build>
-  <plugins>
-    <plugin>
-      <groupId>org.codehaus.mojo.jboss</groupId>
-      <artifactId>maven-jboss-deploy-plugin</artifactId>
-      <version>1.6.0</version>
-      <executions>
-        <execution>
-          <id>deploy-ear</id>
-          <phase>install</phase>
-          <goals>
-            <goal>deploy</goal>
-          </goals>
-          <configuration>
-            <earFile>${project.build.directory}/${project.build.finalName}.ear</earFile>
-            <jbossHome>/chemin/vers/votre/dossier/jboss</jbossHome>
-            <serverName>default</serverName>
-            <jvmArgs>-Xmx1024m -DmonParametre=maValeur</jvmArgs>
-            <args>-param1 valeur1 -param2 valeur2</args>
-          </configuration>
-        </execution>
-      </executions>
-    </plugin>
-  </plugins>
-</build>
-run.bat -c chemin/vers/votre/instance -DmonParametre=maValeur -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Djava.endorsed.dirs=chemin/vers/votre/instance/lib/endorsed org.jboss.Main
+cp $ear $serverDir
 
-    
+. $jbossHome/bin/run.bat -c $serverDir -Dhttp.proxyHost=proxymc.frf.fr -Dhttp.proxyPort=8080 -Dhttp.proxyUser=adeo466 -Dhttp.proxyPassword="Franfinance1711" -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Djava.endorsed.dirs=$jbossHome/lib/endorsed org.jboss.Main --configuration=ode-ihm --host=localhost -Djboss.server.base.url=file:/D:/adeo466/Outils/Atelier43/jboss-4.2.3.GA/server/ 
