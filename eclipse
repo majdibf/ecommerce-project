@@ -155,14 +155,33 @@ import org.springframework.context.annotation.Import;
 @Import(ActivitiRestApiSecurityConfig.class)
 public class YourApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(YourApplication.class, args);
-    }
-}
-```
+    public static void 
+    
+    
+    <build>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo.jboss</groupId>
+      <artifactId>maven-jboss-deploy-plugin</artifactId>
+      <version>1.6.0</version>
+      <executions>
+        <execution>
+          <id>deploy-ear</id>
+          <phase>install</phase>
+          <goals>
+            <goal>deploy</goal>
+          </goals>
+          <configuration>
+            <earFile>${project.build.directory}/${project.build.finalName}.ear</earFile>
+            <jbossHome>/chemin/vers/votre/dossier/jboss</jbossHome>
+            <serverName>default</serverName>
+            <jvmArgs>-Xmx1024m -DmonParametre=maValeur</jvmArgs>
+            <args>-param1 valeur1 -param2 valeur2</args>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
 
-Cela permettra à votre application de prendre en compte la configuration de sécurité personnalisée pour l'API REST d'Activiti.
-
-N'oubliez pas de personnaliser les configurations d'authentification selon vos besoins. Par exemple, vous pouvez définir un authentificateur personnalisé ou utiliser un fournisseur d'authentification différent dans `ActivitiRestSecurityConfiguration` pour une authentification personnalisée.
-
-Notez que cette approche est spécifique à l'API REST d'Activiti et ne modifie pas la configuration de sécurité pour le reste de votre application Spring Boot.
+    
