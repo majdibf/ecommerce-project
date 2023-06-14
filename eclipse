@@ -5,3 +5,14 @@ serverDir=$jbossHome/server/ode-ihm
 cp $ear $serverDir
 
 . $jbossHome/bin/run.bat -c $serverDir -Dhttp.proxyHost=proxymc.frf.fr -Dhttp.proxyPort=8080 -Dhttp.proxyUser=adeo466 -Dhttp.proxyPassword="Franfinance1711" -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Djava.endorsed.dirs=$jbossHome/lib/endorsed org.jboss.Main --configuration=ode-ihm --host=localhost -Djboss.server.base.url=file:/D:/adeo466/Outils/Atelier43/jboss-4.2.3.GA/server/ 
+
+
+@echo off
+
+set "jbossHome=D:\adeo466\Outils\Atelier43\jboss-4.2.3.GA"
+set "ear=D:\workdir\workspaces\back\odeihm\FAE_JUNIT\FAE_JUNIT-ear\target\FAE_JUNIT-ear-0.0.2-SNAPSHOT.ear"
+set "serverDir=%jbossHome%\server\ode-ihm"
+
+copy "%ear%" "%serverDir%"
+
+call "%jbossHome%\bin\run.bat" -c "%serverDir%" -Dhttp.proxyHost=proxymc.frf.fr -Dhttp.proxyPort=8080 -Dhttp.proxyUser=adeo466 -Dhttp.proxyPassword="Franfinance1711" -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Djava.endorsed.dirs="%jbossHome%\lib\endorsed" org.jboss.Main --configuration=ode-ihm --host=localhost -Djboss.server.base.url=file:/D:/adeo466/Outils/Atelier43/jboss-4.2.3.GA/server/
