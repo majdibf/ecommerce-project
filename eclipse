@@ -1,60 +1,44 @@
-jbossHome="/D/adeo466/Outils/Atelier43/jboss-4.2.3.GA"
-ear="/D/workdir/workspaces/back/odeihm/FAE_JUNIT/FAE_JUNIT-ear/target/FAE_JUNIT-ear-0.0.2-SNAPSHOT.ear"
-serverDir=$jbossHome/server/ode-ihm
+ vous ne souhaitez pas ajouter les JNDI JBoss une par une dans le contexte Spring, vous pouvez utiliser la fonctionnalité de découverte automatique des JNDI JBoss en utilisant la bibliothèque spring-jndi.
 
-cp $ear $serverDir
+Voici les étapes pour configurer la découverte automatique des JNDI JBoss dans Spring :
 
-. $jbossHome/bin/run.bat -c $serverDir -Dhttp.proxyHost=proxymc.frf.fr -Dhttp.proxyPort=8080 -Dhttp.proxyUser=adeo466 -Dhttp.proxyPassword="Franfinance1711" -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Djava.endorsed.dirs=$jbossHome/lib/endorsed org.jboss.Main --configuration=ode-ihm --host=localhost -Djboss.server.base.url=file:/D:/adeo466/Outils/Atelier43/jboss-4.2.3.GA/server/ 
-
-
-@echo off
-
-set "jbossHome=D:\adeo466\Outils\Atelier43\jboss-4.2.3.GA"
-set "ear=D:\workdir\workspaces\back\odeihm\FAE_JUNIT\FAE_JUNIT-ear\target\FAE_JUNIT-ear-0.0.2-SNAPSHOT.ear"
-set "serverDir=%jbossHome%\server\ode-ihm"
-
-copy "%ear%" "%serverDir%"
-
-call "%jbossHome%\bin\run.bat" -c "%serverDir%" -Dhttp.proxyHost=proxymc.frf.fr -Dhttp.proxyPort=8080 -Dhttp.proxyUser=adeo466 -Dhttp.proxyPassword="Franfinance1711" -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Djava.endorsed.dirs="%jbossHome%\lib\endorsed" org.jboss.Main --configuration=ode-ihm --host=localhost -Djboss.server.base.url=file:/D:/adeo466/Outils/Atelier43/jboss-4.2.3.GA/server/
-Pour rendre le contexte JNDI de JBoss visible depuis vos beans Spring et pouvoir récupérer les ressources JNDI, vous pouvez utiliser l'injection de dépendances pour fournir le contexte JNDI à vos beans.
-
-Voici les étapes à suivre :
-
-    Déclarez une variable pour le contexte JNDI dans votre classe de bean :
-
-java
-
-private Context jndiContext;
-
-    Ajoutez un setter pour le contexte JNDI dans la classe de bean pour permettre l'injection de dépendances :
-
-java
-
-public void setJndiContext(Context jndiContext) {
-    this.jndiContext = jndiContext;
-}
-
-    Configurez votre fichier de configuration Spring (par exemple, applicationContext.xml) pour injecter le contexte JNDI dans votre bean. Utilisez le <jee:jndi-lookup> de Spring pour récupérer le contexte JNDI de JBoss :
+    Ajoutez la dépendance spring-jndi : Assurez-vous d'inclure la dépendance spring-jndi dans votre projet. Par exemple, avec Maven :
 
 xml
 
-<jee:jndi-lookup id="jndiContext" jndi-name="java:comp/env" resource-ref="true"/>
-<bean id="yourBean" class="com.example.YourBeanClass">
-    <property name="jndiContext" ref="jndiContext"/>
-</bean>
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-jndi</artifactId>
+    <version>5.3.9</version>
+</dependency>
 
-    Utilisez le contexte JNDI dans votre classe de bean pour récupérer les ressources JNDI nécessaires :
+    Configurez le contexte Spring : Dans votre fichier de configuration Spring (par exemple, applicationContext.xml), configurez le contexte Spring pour utiliser la découverte automatique des JNDI. Utilisez la balise <jee:jndi-lookup> avec le préfixe jboss: pour rechercher les JNDI JBoss automatiquement. Par exemple :
+
+xml
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+    <jee:jndi-lookup id="myDataSource" jndi-name="jboss:/datasources/MyDataSource" resource-ref="true" />
+
+    <!-- Autres configurations Spring -->
+
+</beans>
+
+Notez l'utilisation de "jboss:/datasources/MyDataSource" comme nom JNDI avec le préfixe jboss: pour indiquer la découverte automatique des JNDI JBoss.
+
+    Utilisez les JNDI dans votre code Spring : Vous pouvez maintenant utiliser les JNDI JBoss découverts dans le contexte Spring. Par exemple, vous pouvez injecter le JNDI dans une classe en utilisant l'annotation @Autowired :
 
 java
 
-// Exemple de récupération d'une ressource JDBC
-DataSource dataSource = (DataSource) jndiContext.lookup("java:/jdbc/degconsult");
+@Autowired
+private DataSource myDataSource;
 
-// Exemple de récupération d'une ressource JMS
-ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup("java:/ConnectionFactory");
+Assurez-vous d'avoir configuré les annotations de balayage (<context:component-scan>) dans votre fichier de configuration Spring pour que les classes annotées soient détectées.
 
-Assurez-vous d'importer les classes nécessaires pour utiliser le contexte JNDI, telles que javax.naming.Context et javax.naming.NamingException.
+Lorsque votre application Spring démarre, la bibliothèque spring-jndi recherche automatiquement les JNDI JBoss correspondants et les ajoute au contexte Spring.
 
-Avec cette configuration, le contexte JNDI de JBoss sera injecté dans votre bean et vous pourrez l'utiliser pour récupérer les ressources JNDI nécessaires.
-
-N'oubliez pas de configurer les dépendances appropriées dans votre fichier de configuration de dépendances (par exemple, pom.xml si vous utilisez Maven) pour utiliser les fonctionnalités de JNDI et les classes nécessaires.
+Cela vous permet d'ajouter et d'utiliser les JNDI JBoss de manière automatique et plus efficace dans votre application Spring.
