@@ -16,3 +16,45 @@ set "serverDir=%jbossHome%\server\ode-ihm"
 copy "%ear%" "%serverDir%"
 
 call "%jbossHome%\bin\run.bat" -c "%serverDir%" -Dhttp.proxyHost=proxymc.frf.fr -Dhttp.proxyPort=8080 -Dhttp.proxyUser=adeo466 -Dhttp.proxyPassword="Franfinance1711" -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Djava.endorsed.dirs="%jbossHome%\lib\endorsed" org.jboss.Main --configuration=ode-ihm --host=localhost -Djboss.server.base.url=file:/D:/adeo466/Outils/Atelier43/jboss-4.2.3.GA/server/
+Pour rendre le contexte JNDI de JBoss visible depuis vos beans Spring et pouvoir récupérer les ressources JNDI, vous pouvez utiliser l'injection de dépendances pour fournir le contexte JNDI à vos beans.
+
+Voici les étapes à suivre :
+
+    Déclarez une variable pour le contexte JNDI dans votre classe de bean :
+
+java
+
+private Context jndiContext;
+
+    Ajoutez un setter pour le contexte JNDI dans la classe de bean pour permettre l'injection de dépendances :
+
+java
+
+public void setJndiContext(Context jndiContext) {
+    this.jndiContext = jndiContext;
+}
+
+    Configurez votre fichier de configuration Spring (par exemple, applicationContext.xml) pour injecter le contexte JNDI dans votre bean. Utilisez le <jee:jndi-lookup> de Spring pour récupérer le contexte JNDI de JBoss :
+
+xml
+
+<jee:jndi-lookup id="jndiContext" jndi-name="java:comp/env" resource-ref="true"/>
+<bean id="yourBean" class="com.example.YourBeanClass">
+    <property name="jndiContext" ref="jndiContext"/>
+</bean>
+
+    Utilisez le contexte JNDI dans votre classe de bean pour récupérer les ressources JNDI nécessaires :
+
+java
+
+// Exemple de récupération d'une ressource JDBC
+DataSource dataSource = (DataSource) jndiContext.lookup("java:/jdbc/degconsult");
+
+// Exemple de récupération d'une ressource JMS
+ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup("java:/ConnectionFactory");
+
+Assurez-vous d'importer les classes nécessaires pour utiliser le contexte JNDI, telles que javax.naming.Context et javax.naming.NamingException.
+
+Avec cette configuration, le contexte JNDI de JBoss sera injecté dans votre bean et vous pourrez l'utiliser pour récupérer les ressources JNDI nécessaires.
+
+N'oubliez pas de configurer les dépendances appropriées dans votre fichier de configuration de dépendances (par exemple, pom.xml si vous utilisez Maven) pour utiliser les fonctionnalités de JNDI et les classes nécessaires.
