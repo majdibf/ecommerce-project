@@ -2,3 +2,9 @@
 
         @Resource(name = "java:comp/InjectedEENamespaceContextSelector")
         private InjectedEENamespaceContextSelector namespaceContextSelector;
+
+
+<bean id="namespaceContextSelector" class="org.springframework.jndi.JndiNamespaceContextSelector">
+    <property name="selector" value="org.jboss.as.naming.context.InjectedEENamespaceContextSelector" />
+</bean>
+
