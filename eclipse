@@ -1,44 +1,4 @@
- vous ne souhaitez pas ajouter les JNDI JBoss une par une dans le contexte Spring, vous pouvez utiliser la fonctionnalité de découverte automatique des JNDI JBoss en utilisant la bibliothèque spring-jndi.
+<jee:jndi-lookup id="namespaceContextSelector" jndi-name="java:comp/InjectedEENamespaceContextSelector"/>
 
-Voici les étapes pour configurer la découverte automatique des JNDI JBoss dans Spring :
-
-    Ajoutez la dépendance spring-jndi : Assurez-vous d'inclure la dépendance spring-jndi dans votre projet. Par exemple, avec Maven :
-
-xml
-
-<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-jndi</artifactId>
-    <version>5.3.9</version>
-</dependency>
-
-    Configurez le contexte Spring : Dans votre fichier de configuration Spring (par exemple, applicationContext.xml), configurez le contexte Spring pour utiliser la découverte automatique des JNDI. Utilisez la balise <jee:jndi-lookup> avec le préfixe jboss: pour rechercher les JNDI JBoss automatiquement. Par exemple :
-
-xml
-
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:jee="http://www.springframework.org/schema/jee"
-       xsi:schemaLocation="
-          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-          http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
-
-    <jee:jndi-lookup id="myDataSource" jndi-name="jboss:/datasources/MyDataSource" resource-ref="true" />
-
-    <!-- Autres configurations Spring -->
-
-</beans>
-
-Notez l'utilisation de "jboss:/datasources/MyDataSource" comme nom JNDI avec le préfixe jboss: pour indiquer la découverte automatique des JNDI JBoss.
-
-    Utilisez les JNDI dans votre code Spring : Vous pouvez maintenant utiliser les JNDI JBoss découverts dans le contexte Spring. Par exemple, vous pouvez injecter le JNDI dans une classe en utilisant l'annotation @Autowired :
-
-java
-
-@Autowired
-private DataSource myDataSource;
-
-Assurez-vous d'avoir configuré les annotations de balayage (<context:component-scan>) dans votre fichier de configuration Spring pour que les classes annotées soient détectées.
-
-Lorsque votre application Spring démarre, la bibliothèque spring-jndi recherche automatiquement les JNDI JBoss correspondants et les ajoute au contexte Spring.
-
-Cela vous permet d'ajouter et d'utiliser les JNDI JBoss de manière automatique et plus efficace dans votre application Spring.
+        @Resource(name = "java:comp/InjectedEENamespaceContextSelector")
+        private InjectedEENamespaceContextSelector namespaceContextSelector;
