@@ -1,0 +1,61 @@
+#!/bin/ksh
+
+# Vérifier si un argument a été fourni
+if [ $# -eq 0 ]; then
+    print "Erreur : Veuillez spécifier un environnement (int, rec, pre, pro, release)"
+    exit 1
+fi
+
+# Récupérer l'argument
+ENV=$1
+
+# Définir le chemin du script
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR
+SCRIPT_DIR=$(pwd)
+
+# Définir les chemins source et destination
+case $ENV in
+    release)
+        SOURCE_DIR="$SCRIPT_DIR/Release/bpmExportStats"
+        DEST_DIR="$REL_HOME/bpmExportStats"
+        ;;
+    int|rec|pre|pro)
+        SOURCE_DIR="$SCRIPT_DIR/${ENV:u}/bpmExportStats"
+        eval DEST_DIR="\$${ENV:u}_HOME/bpmExportStats"
+        ;;
+    *)
+        print "Erreur : L'environnement doit être int, rec, pre, pro ou release"
+        exit 1
+        ;;
+esac
+
+# Vérifier si le dossier de destination existe
+if [ ! -d "$DEST_DIR" ]; then
+    print "Le dossier de destination $DEST_DIR n'existe pas."
+    print "Voulez-vous le créer ? (o/n)"
+    read REPONSE
+    case $REPONSE in
+        [Oo]*)
+            mkdir -p "$DEST_DIR"
+            if [ $? -eq 0 ]; then
+                print "Dossier créé avec succès."
+            else
+                print "Erreur lors de la création du dossier."
+                exit 1
+            fi
+            ;;
+        *)
+            print "Opération annulée."
+            exit 1
+            ;;
+    esac
+else
+    print "Le dossier de destination $DEST_DIR existe déjà."
+fi
+
+# Copier le contenu
+print "Copie du contenu de $SOURCE_DIR vers $DEST_DIR"
+cp -R "$SOURCE_DIR"/* "$DEST_DIR"
+
+print "Déploiement pour l'environnement $ENV terminé"
