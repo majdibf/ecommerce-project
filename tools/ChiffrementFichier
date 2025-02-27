@@ -1,0 +1,62 @@
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+
+public class ChiffrementFichier {
+    private static final String ALGORITHM = "AES";
+    private static final String SECRET_KEY = "VotreCleSecrete16"; // 16 caractères pour AES-128
+
+    public static void main(String[] args) {
+        if (args.length < 3) {
+            System.out.println("Usage: java ChiffrementFichier <encrypt|decrypt> <input_file> <output_file>");
+            return;
+        }
+
+        String mode = args[0];
+        String inputFile = args[1];
+        String outputFile = args[2];
+
+        try {
+            // Lecture du fichier d'entrée
+            String contenu = new String(Files.readAllBytes(Paths.get(inputFile)), StandardCharsets.UTF_8);
+            String resultat;
+
+            if ("encrypt".equalsIgnoreCase(mode)) {
+                resultat = chiffrer(contenu);
+                System.out.println("Le fichier a été chiffré avec succès.");
+            } else if ("decrypt".equalsIgnoreCase(mode)) {
+                resultat = dechiffrer(contenu);
+                System.out.println("Le fichier a été déchiffré avec succès.");
+            } else {
+                System.out.println("Mode inconnu : utilisez 'encrypt' ou 'decrypt'.");
+                return;
+            }
+
+            // Écriture du résultat dans le fichier de sortie
+            Files.write(Paths.get(outputFile), resultat.getBytes(StandardCharsets.UTF_8));
+
+        } catch (Exception e) {
+            System.err.println("Erreur : " + e.getMessage());
+        }
+    }
+
+    public static String chiffrer(String texte) throws Exception {
+        SecretKey cle = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, cle);
+        byte[] texteChiffreBytes = cipher.doFinal(texte.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(texteChiffreBytes);
+    }
+
+    public static String dechiffrer(String texteChiffre) throws Exception {
+        SecretKey cle = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, cle);
+        byte[] texteDechiffreBytes = cipher.doFinal(Base64.getDecoder().decode(texteChiffre));
+        return new String(texteDechiffreBytes, StandardCharsets.UTF_8);
+    }
+}
