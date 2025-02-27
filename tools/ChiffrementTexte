@@ -1,0 +1,42 @@
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+
+public class ChiffrementTexte {
+
+    private static final String ALGORITHM = "AES";
+    private static final String SECRET_KEY = "VotreCleSecrete16"; // Clé de 16 caractères pour AES-128
+
+    public static void main(String[] args) throws Exception {
+        String texteOriginal = "Voici un texte à chiffrer";
+        
+        // Chiffrement
+        String texteChiffre = chiffrer(texteOriginal);
+        Files.write(Paths.get("texte_chiffre.txt"), texteChiffre.getBytes());
+        
+        // Déchiffrement
+        String texteDechiffre = dechiffrer(texteChiffre);
+        System.out.println("Texte déchiffré : " + texteDechiffre);
+    }
+
+    public static String chiffrer(String texte) throws Exception {
+        SecretKey cle = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, cle);
+        byte[] texteChiffreBytes = cipher.doFinal(texte.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(texteChiffreBytes);
+    }
+
+    public static String dechiffrer(String texteChiffre) throws Exception {
+        SecretKey cle = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, cle);
+        byte[] texteChiffreBytes = Base64.getDecoder().decode(texteChiffre);
+        byte[] texteDechiffreBytes = cipher.doFinal(texteChiffreBytes);
+        return new String(texteDechiffreBytes, StandardCharsets.UTF_8);
+    }
+}
